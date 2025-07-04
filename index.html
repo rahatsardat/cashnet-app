@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>CashNet - আয় করুন সহজে</title>
+    
+    <!-- টেলিগ্রাম ও বিজ্ঞাপন প্ল্যাটফর্মের স্ক্রিপ্ট -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- !!! আপনার Monetag বা অন্য প্ল্যাটফর্মের SDK ট্যাগটি এখানে বসাবেন !!! -->
+    <!-- উদাহরণ: <script src="https://your-ad-platform.com/sdk.js"></script> -->
+    
+    <!-- স্টাইল ও আইকন -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- অ্যাপ লোড হওয়ার সময় এই লোডারটি দেখানো হবে -->
+    <div id="app-loader" class="loader-container">
+        <div class="loader"></div>
+    </div>
+
+    <!-- মূল অ্যাপ কন্টেইনার -->
+    <div id="app-container" class="hidden">
+        <main id="main-content">
+            <!-- জাভাস্ক্রিপ্ট থেকে প্রতিটি পেইজ এখানে লোড হবে -->
+        </main>
+        
+        <!-- নিচের নেভিগেশন বার -->
+        <nav class="bottom-nav">
+            <button data-page="home" class="nav-btn active"><i class="fas fa-home"></i><span>হোম</span></button>
+            <button data-page="tasks" class="nav-btn"><i class="fas fa-tasks"></i><span>কাজ</span></button>
+            <button data-page="referral" class="nav-btn"><i class="fas fa-user-plus"></i><span>রেফার</span></button>
+            <button data-page="withdraw" class="nav-btn"><i class="fas fa-wallet"></i><span>উইথড্র</span></button>
+        </nav>
+    </div>
+
+    <!-- JavaScript ফাইল (সবার শেষে) -->
+    <script src="script.js"></script>
+</body>
+</html>
