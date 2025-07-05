@@ -1,221 +1,32 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const tg = window.Telegram.WebApp;
-    tg.ready();
-    tg.expand();
+// আপনার আসল কনফিগারেশন কোড
+const firebaseConfig = { apiKey: "AIzaSyDHx-Q59qNbc3gvkyrOuvf-vWAeBMQgJow", authDomain: "cashnet-app-c1c73.firebaseapp.com", projectId: "cashnet-app-c1c73", storageBucket: "cashnet-app-c1c73.firebasestorage.app", messagingSenderId: "615378112175", appId: "1:615378112175:web:ee599b160638a580fd4e5a", measurementId: "G-LG1B2CNTYD" };
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const ADMIN_UID = 'vmpYSpiOQ5V1K7vVsjvLsWGSwof2';
 
-    // ===================================
-    // অ্যাপের কেন্দ্রীয় স্টেট এবং সেটিংস
-    // ===================================
-    const appState = {
-        currentPage: 'home',
-        userData: {
-            id: tg.initDataUnsafe.user?.id || 12345,
-            firstName: tg.initDataUnsafe.user?.first_name || "Guest",
-            balance: 0.00,
-            referrals: 0,
-            isBlocked: false,
-        },
-        settings: {
-            appName: "CashNet",
-            appLogoUrl: "https://i.ibb.co/3zdVvjB/cashnet-logo.png", // আপনার লোগোর URL এখানে দিন
-            botUsername: "YOUR_BOT_USERNAME", // আপনার বটের ইউজারনেম
-            withdrawLimit: {
-                balance: 1000,
-                referrals: 20
-            },
-            tasks: [
-                {
-                    id: 'task_monetag_direct',
-                    title: 'Monetag লিঙ্ক ভিজিট',
-                    description: 'নতুন অফার দেখুন এবং আয় করুন',
-                    reward: 0.30,
-                    icon: 'fa-link',
-                    action: (task) => handleDirectLinkTask('https://otieu.com/4/9156891', task)
-                },
-                {
-                    id: 'task_adsterra_direct',
-                    title: 'Adsterra লিঙ্ক ভিজিট',
-                    description: 'স্পেশাল অফার দেখে আয় করুন',
-                    reward: 0.35,
-                    icon: 'fa-star',
-                    action: (task) => handleDirectLinkTask('https://amuletshaped.com/xmy5jz0v?key=4bff42bbba1a2dd0e034d406ae638704', task)
-                },
-                {
-                    id: 'task_advirtika_direct',
-                    title: 'Advirtika লিঙ্ক ভিজিট',
-                    description: 'লিঙ্ক ভিজিট করে আয় করুন',
-                    reward: 0.25,
-                    icon: 'fa-external-link-alt',
-                    action: (task) => handleDirectLinkTask('https://data852.click/c216ade659fc1eb4f0a6/dcddaea166/?placementName=default', task)
-                },
-                // আপনি চাইলে নিচে Monetag SDK-এর কাজগুলোও রাখতে পারেন
-                // {
-                //     id: 'task_monetag_rewarded_popup',
-                //     title: 'রিওয়ার্ডেড পপ-আপ দেখুন',
-                //     description: 'একটি পপ-আপ বিজ্ঞাপন দেখে আয় করুন',
-                //     reward: 0.75,
-                //     icon: 'fa-window-maximize',
-                //     action: (task) => {
-                //         show_9182101('pop').then(() => giveReward(task.reward))
-                //             .catch(e => tg.showAlert("দুঃখিত, বিজ্ঞাপনটি দেখানো যাচ্ছে না।"));
-                //     }
-                // }
-            ]
-        }
-    };
+// HTML এলিমেন্টগুলো
+const authContainer = document.getElementById('auth-container'), appContainer = document.getElementById('app-container'), adminPanel = document.getElementById('admin-panel'), emailInput = document.getElementById('email'), passwordInput = document.getElementById('password'), loginBtn = document.getElementById('login-btn'), signupBtn = document.getElementById('signup-btn'), googleLoginBtn = document.getElementById('google-login-btn'), logoutBtn = document.getElementById('logout-btn'), userEmailSpan = document.getElementById('user-email'), userUidSpan = document.getElementById('user-uid'), userBalanceSpan = document.getElementById('user-balance'), messageP = document.getElementById('message'), targetUidInput = document.getElementById('target-uid'), newBalanceInput = document.getElementById('new-balance'), updateBalanceBtn = document.getElementById('update-balance-btn'), claimBonusBtn = document.getElementById('claim-bonus-btn'), tasksContainer = document.getElementById('tasks-container'), withdrawForm = document.getElementById('withdraw-form'), pendingRequestsContainer = document.getElementById('pending-requests-container');
 
-    const mainContent = document.getElementById('main-content');
-    
-    // ===================================
-    // পেইজ রেন্ডার করার ফাংশন
-    // ===================================
-    const pages = {
-        home: () => {
-            const { balance, referrals } = appState.userData;
-            const { balance: balanceLimit, referrals: refLimit } = appState.settings.withdrawLimit;
-            const balanceProgress = Math.min((balance / balanceLimit) * 100, 100);
-            const referralProgress = Math.min((referrals / refLimit) * 100, 100);
-            return `
-                <div class="page" id="page-home">
-                    <header class="header">
-                        <img src="${appState.settings.appLogoUrl}" alt="App Logo" class="app-logo">
-                        <h2 id="welcome-message">স্বাগতম, ${appState.userData.firstName}</h2>
-                    </header>
-                    <div class="card stats-grid">
-                        <div class="stat-card">
-                            <i class="fas fa-wallet icon"></i>
-                            <p>বর্তমান ব্যালেন্স</p>
-                            <h3>৳ ${balance.toFixed(2)}</h3>
-                        </div>
-                        <div class="stat-card">
-                            <i class="fas fa-users icon"></i>
-                            <p>মোট রেফারেল</p>
-                            <h3>${referrals} জন</h3>
-                        </div>
-                    </div>
-                    <div class="card goal-card">
-                        <h4>উইথড্র করার অগ্রগতি</h4>
-                        <div class="progress-item">
-                            <label>ব্যালেন্স (লক্ষ্য: ৳ ${balanceLimit})</label>
-                            <div class="progress-bar-container"><div class="progress-bar" style="width: ${balanceProgress}%;"></div></div>
-                        </div>
-                        <div class="progress-item">
-                            <label>রেফারেল (লক্ষ্য: ${refLimit} জন)</label>
-                            <div class="progress-bar-container"><div class="progress-bar" style="width: ${referralProgress}%;"></div></div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        },
-        tasks: () => {
-            let taskItems = appState.settings.tasks.map(task => `
-                <div class="task-item">
-                    <i class="fas ${task.icon} icon"></i>
-                    <div class="task-details">
-                        <h4>${task.title}</h4>
-                        <p>${task.description}</p>
-                    </div>
-                    <button class="task-btn" data-task-id="${task.id}">শুরু করুন</button>
-                </div>
-            `).join('');
-            return `<div class="page card" id="page-tasks"><h2>কাজসমূহ</h2>${taskItems}</div>`;
-        },
-        referral: () => {
-            const refLink = `https://t.me/${appState.settings.botUsername}?start=${appState.userData.id}`;
-            return `<div class="page card" id="page-referral"><h2><i class="fas fa-share-alt"></i> রেফার করে আয় করুন</h2><p>আপনার বন্ধুদের এই লিঙ্কের মাধ্যমে আমন্ত্রণ জানান। সফল রেফারেলে আপনার আয় বাড়বে।</p><div class="input-group"><input type="text" id="referral-link" value="${refLink}" readonly></div><button id="copy-ref-link-btn" class="btn">লিঙ্ক কপি করুন</button></div>`;
-        },
-        withdraw: () => {
-            const canWithdraw = appState.userData.balance >= appState.settings.withdrawLimit.balance && appState.userData.referrals >= appState.settings.withdrawLimit.referrals;
-            const formHtml = `<div class="input-group"><select id="payment-method"><option value="bkash">বিকাশ</option><option value="nagad">নগদ</option></select></div><div class="input-group"><input type="tel" id="account-number" placeholder="আপনার অ্যাকাউন্ট নম্বর (পার্সোনাল)"></div><button id="submit-withdraw-btn" class="btn">অনুরোধ পাঠান</button>`;
-            const noticeHtml = `<div class="notice">টাকা তোলার জন্য আপনার ন্যূনতম ৳ ${appState.settings.withdrawLimit.balance} ব্যালেন্স এবং ${appState.settings.withdrawLimit.referrals} জন রেফারেল প্রয়োজন।</div>`;
-            return `<div class="page card" id="page-withdraw"><h2><i class="fas fa-wallet"></i> টাকা তুলুন</h2>${canWithdraw ? formHtml : noticeHtml}</div>`;
-        },
-        blocked: () => `<div class="page card"><div class="notice error"><h2><i class="fas fa-user-lock"></i> অ্যাকাউন্ট ব্লকড</h2><p>অ্যাপের নিয়ম লঙ্ঘনের জন্য আপনার অ্যাকাউন্টটি স্থায়ীভাবে ব্লক করা হয়েছে।</p></div></div>`
-    };
+// Auth and User Management
+signupBtn.addEventListener('click', async () => { const e = emailInput.value, t = passwordInput.value, o = document.getElementById('referral-code').value.trim(); if (!e || !t) return void (messageP.textContent = "Please enter both email and password."); try { const n = await auth.createUserWithEmailAndPassword(e, t), a = n.user; await db.runTransaction(async e => { let t = 10; if (o) { const n = db.collection('users').doc(o), a = await e.get(n); if (a.exists) { const i = a.data(), s = (i.referralCount || 0) + 1, l = (i.balance || 0) + 20; e.update(n, { referralCount: s, balance: l }) } } const i = db.collection('users').doc(a.uid); e.set(i, { email: a.email, balance: t, createdAt: firebase.firestore.FieldValue.serverTimestamp(), lastBonusClaimed: null, referredBy: o || null, referralCount: 0 }) }), messageP.textContent = "Sign up successful! Please log in." } catch (e) { messageP.textContent = `Error: ${e.message}` } });
+loginBtn.addEventListener('click', () => { auth.signInWithEmailAndPassword(emailInput.value, passwordInput.value).catch(e => messageP.textContent = `Error: ${e.message}`) });
+googleLoginBtn.addEventListener('click', () => { const e = new firebase.auth.GoogleAuthProvider; auth.signInWithPopup(e).then(e => { const t = e.user, o = db.collection('users').doc(t.uid); o.get().then(e => { e.exists || o.set({ email: t.email, name: t.displayName, balance: 10, createdAt: firebase.firestore.FieldValue.serverTimestamp(), lastBonusClaimed: null, referredBy: null, referralCount: 0 }) }) }).catch(e => messageP.textContent = `Error: ${e.message}`) });
+logoutBtn.addEventListener('click', () => auth.signOut());
+updateBalanceBtn.addEventListener('click', () => { const e = targetUidInput.value, t = parseFloat(newBalanceInput.value); e && !isNaN(t) ? db.collection('users').doc(e).update({ balance: t }).then(() => messageP.textContent = "Balance updated successfully!").catch(e => messageP.textContent = `Error: ${e.message}`) : messageP.textContent = "Please enter a valid UID and balance." });
 
-    // ===================================
-    // অ্যাপের মূল কার্যকারিতা
-    // ===================================
-    function handleDirectLinkTask(link, task) {
-        tg.openLink(link);
-        let countdown = 15;
-        tg.MainButton.setText(`পুরস্কারের জন্য অপেক্ষা করুন (${countdown}s)`).show().disable();
-        const interval = setInterval(() => {
-            countdown--;
-            tg.MainButton.setText(`পুরস্কারের জন্য অপেক্ষা করুন (${countdown}s)`);
-            if (countdown <= 0) {
-                clearInterval(interval);
-                tg.MainButton.setText('✅ পুরস্কার সংগ্রহ করুন').enable();
-            }
-        }, 1000);
-        const claimRewardHandler = () => {
-            giveReward(task.reward);
-            tg.MainButton.hide();
-            tg.offEvent('mainButtonClicked', claimRewardHandler);
-        };
-        tg.onEvent('mainButtonClicked', claimRewardHandler);
-    }
-    
-    function renderPage(pageId) {
-        if (appState.userData.isBlocked) {
-            mainContent.innerHTML = pages.blocked();
-            return;
-        }
-        appState.currentPage = pageId;
-        mainContent.innerHTML = pages[pageId]();
-        attachEventListeners(pageId);
-    }
-    
-    function attachEventListeners(pageId) {
-        if (pageId === 'tasks') {
-            document.querySelectorAll('.task-btn').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const taskId = e.target.dataset.taskId;
-                    const task = appState.settings.tasks.find(t => t.id === taskId);
-                    if (task) task.action(task);
-                });
-            });
-        }
-        if (pageId === 'referral') document.getElementById('copy-ref-link-btn').addEventListener('click', copyReferralLink);
-        if (pageId === 'withdraw') {
-            const btn = document.getElementById('submit-withdraw-btn');
-            if (btn) btn.addEventListener('click', submitWithdrawRequest);
-        }
-    }
+// Feature: Daily Bonus
+claimBonusBtn.addEventListener('click', () => { const e = auth.currentUser; if (e) { const t = db.collection('users').doc(e.uid), o = (new Date).toISOString().split("T")[0]; t.get().then(e => { if (e.exists) { const n = e.data(); if (n.lastBonusClaimed === o) return void (messageP.textContent = "You have already claimed your daily bonus today."); const a = (n.balance || 0) + 10; t.update({ balance: a, lastBonusClaimed: o }).then(() => messageP.textContent = "Congratulations! 10 bonus points added.").catch(e => messageP.textContent = `Error: ${e.message}`) } }) } });
 
-    function giveReward(amount) {
-        appState.userData.balance += amount;
-        tg.HapticFeedback.notificationOccurred('success');
-        tg.showAlert(`অভিনন্দন! আপনি ৳ ${amount.toFixed(2)} পেয়েছেন।`);
-        if (appState.currentPage === 'home') {
-            renderPage('home');
-        }
-    }
-    
-    function copyReferralLink() { navigator.clipboard.writeText(document.getElementById('referral-link').value).then(() => { tg.HapticFeedback.notificationOccurred('success'); tg.showAlert('রেফারেল লিঙ্ক কপি করা হয়েছে!'); }); }
-    function submitWithdrawRequest() { const method = document.getElementById('payment-method').value; const number = document.getElementById('account-number').value; if (!number || number.length < 11) { tg.showAlert('অনুগ্রহ করে সঠিক ১১-ডিজিটের অ্যাকাউন্ট নম্বর দিন।'); return; } tg.showAlert(`আপনার অনুরোধটি গ্রহণ করা হয়েছে। ২৪-৪৮ ঘণ্টার মধ্যে আপনার ${method} অ্যাকাউন্টে টাকা পাঠানো হবে।`); renderPage('home'); }
+// Feature: Tasks System
+async function loadTasks() { try { const e = await db.collection('tasks').get(); if (tasksContainer.innerHTML = "", e.empty) return void (tasksContainer.innerHTML = "<p>No tasks available right now.</p>"); e.forEach(e => { const t = e.data(), o = e.id, n = document.createElement('div'); n.className = 'task-card', n.innerHTML = `<h3>${t.title}</h3><p>${t.description}</p><p><strong>Points: ${t.points}</strong></p><button class="complete-task-btn" data-task-id="${o}" data-points="${t.points}">Complete Task</button>`, tasksContainer.appendChild(n) }), addCompleteTaskListeners() } catch (e) { console.error("Error loading tasks: ", e), tasksContainer.innerHTML = "<p>Could not load tasks.</p>" } }
+function addCompleteTaskListeners() { document.querySelectorAll('.complete-task-btn').forEach(e => { e.addEventListener('click', async t => { const o = auth.currentUser; if (o) { const n = t.target.dataset.taskId, a = parseInt(t.target.dataset.points), s = db.collection('users').doc(o.uid), i = s.collection('completed_tasks').doc(n); try { if ((await i.get()).exists) return void (messageP.textContent = "You have already completed this task!"); await db.runTransaction(async e => { const t = (await e.get(s)).data().balance || 0; e.update(s, { balance: t + a }), e.set(i, { completedAt: new Date }) }), messageP.textContent = `Congratulations! ${a} points added.`, t.target.disabled = !0, t.target.textContent = "Completed" } catch (e) { console.error("Error completing task: ", e), messageP.textContent = "Could not complete the task." } } else messageP.textContent = "Please log in to complete tasks." }) }) }
 
-    // ===================================
-    // অ্যাপ চালু করা
-    // ===================================
-    async function init() {
-        // TODO: এখানে fetch() দিয়ে ব্যাক-এন্ড থেকে আসল userData লোড করতে হবে
-        appState.userData.balance = 250.50; // ডেমো ডেটা
-        appState.userData.referrals = 12; // ডেমো ডেটা
+// Feature: Withdrawal System
+const MINIMUM_WITHDRAWAL = 500;
+withdrawForm.addEventListener('submit', async e => { e.preventDefault(); const t = auth.currentUser; if (t) { const o = parseInt(document.getElementById('withdraw-amount').value), n = document.getElementById('withdraw-method').value, a = document.getElementById('account-info').value; if (o && n && a) { if (o < MINIMUM_WITHDRAWAL) return void (messageP.textContent = `Minimum withdrawal amount is ${MINIMUM_WITHDRAWAL} points.`); const s = db.collection('users').doc(t.uid); try { await db.runTransaction(async e => { const n = await e.get(s); if (!n.exists) throw new Error("User does not exist!"); const i = n.data().balance || 0; if (i < o) throw new Error("Insufficient balance."); const l = i - o; e.update(s, { balance: l }); const c = db.collection('withdraw_requests').doc(); e.set(c, { userId: t.uid, userEmail: t.email, amount: o, method: n, accountInfo: a, status: 'pending', requestedAt: new Date }) }), messageP.textContent = "Withdrawal request submitted successfully!", withdrawForm.reset() } catch (e) { messageP.textContent = `Error: ${e.message}`, console.error("Withdrawal error: ", e) } } else messageP.textContent = "Please fill all the fields." } else messageP.textContent = "Please log in first." });
+function loadPendingRequests() { db.collection('withdraw_requests').where('status', '==', 'pending').orderBy('requestedAt', 'asc').onSnapshot(e => { if (pendingRequestsContainer.innerHTML = "", e.empty) return void (pendingRequestsContainer.innerHTML = "<p>No pending requests.</p>"); e.forEach(e => { const t = e.data(), o = e.id, n = document.createElement('div'); n.className = 'request-card', n.innerHTML = `<p><strong>User:</strong> ${t.userEmail}</p><p><strong>Amount:</strong> ${t.amount} points</p><p><strong>Method:</strong> ${t.method}</p><p><strong>Account:</strong> ${t.accountInfo}</p><button class="approve-btn" data-id="${o}">Approve</button><button class="reject-btn" data-id="${o}">Reject</button>`, pendingRequestsContainer.appendChild(n) }), addRequestActionListeners() }) }
+function addRequestActionListeners() { document.querySelectorAll('.approve-btn').forEach(e => { e.addEventListener('click', e => { db.collection('withdraw_requests').doc(e.target.dataset.id).update({ status: 'completed' }) }) }), document.querySelectorAll('.reject-btn').forEach(e => { e.addEventListener('click', async e => { const t = db.collection('withdraw_requests').doc(e.target.dataset.id); try { await db.runTransaction(async e => { const o = await e.get(t); if (!o.exists) throw new Error("Request not found"); const n = o.data(), a = db.collection('users').doc(n.userId), s = (await e.get(a)).data().balance || 0; e.update(a, { balance: s + n.amount }), e.update(t, { status: 'rejected' }) }) } catch (e) { console.error("Rejection error: ", e) } }) }) }
 
-        renderPage('home');
-        document.getElementById('app-loader').classList.add('hidden');
-        document.getElementById('app-container').classList.remove('hidden');
-    }
-
-    document.querySelectorAll('.nav-btn').forEach(button => {
-        button.addEventListener('click', (e) => {
-            const pageId = e.currentTarget.dataset.page;
-            document.querySelector('.nav-btn.active').classList.remove('active');
-            e.currentTarget.classList.add('active');
-            renderPage(pageId);
-        });
-    });
-
-    init();
-});
+// Auth State Change Listener (Main Logic)
+auth.onAuthStateChanged(e => { if (e) { authContainer.style.display = 'none', appContainer.style.display = 'block', userEmailSpan.textContent = e.email, userUidSpan.textContent = e.uid, loadTasks(), db.collection('users').doc(e.uid).onSnapshot(e => { userBalanceSpan.textContent = e.exists ? e.data().balance : 'N/A' }), adminPanel.style.display = e.uid === ADMIN_UID ? 'block' : 'none', e.uid === ADMIN_UID && loadPendingRequests() } else authContainer.style.display = 'block', appContainer.style.display = 'none' });

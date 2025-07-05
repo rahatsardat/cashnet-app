@@ -1,112 +1,23 @@
-/* ==================================================
-   CashNet - প্রফেশনাল থিম V1.0
-   ================================================== */
-
-/* ১. গুগল ফন্ট ইম্পোর্ট */
-@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap');
-
-/* ২. মূল ভেরিয়েবল (এগুলো পরিবর্তন করে পুরো থিম বদলানো যাবে) */
-:root {
-    --primary-color: #3671E9; /* ব্র্যান্ডের প্রধান নীল রঙ */
-    --secondary-color: #10B981; /* সফলতার জন্য সবুজ রঙ */
-    --background-color: var(--tg-theme-bg-color, #F5F8FA); /* সফট ব্যাকগ্রাউন্ড */
-    --card-color: var(--tg-theme-secondary-bg-color, #FFFFFF); /* কার্ডের রঙ */
-    --text-color: var(--tg-theme-text-color, #1A202C); /* মূল লেখার রঙ (কালোর চেয়ে সফট) */
-    --text-color-light: #4A5568; /* হালকা লেখার রঙ */
-    --hint-color: var(--tg-theme-hint-color, #A0AEC0); /* আরও হালকা লেখার রঙ */
-    --danger-color: #E53E3E; /* বিপদ বা ত্রুটির রঙ */
-    --border-color: #E2E8F0; /* বর্ডারের রঙ */
-    --font-family: 'Hind Siliguri', sans-serif;
-    --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.07); /* সুন্দর শ্যাডো */
-    --card-radius: 20px; /* স্মুথ বর্ডার */
-}
-
-/* ৩. গ্লোবাল স্টাইল */
-body {
-    font-family: var(--font-family);
-    background-color: var(--background-color);
-    color: var(--text-color);
-    margin: 0;
-    -webkit-font-smoothing: antialiased; /* ফন্টকে স্মুথ করার জন্য */
-    overflow: hidden;
-}
-
-.hidden { display: none !important; }
-
-/* ৪. লোডার ডিজাইন */
-.loader-container { display: flex; justify-content: center; align-items: center; height: 100vh; }
-.loader { border: 4px solid var(--border-color); border-top: 4px solid var(--primary-color); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-/* ৫. অ্যাপের মূল লেআউট */
-#app-container { display: flex; flex-direction: column; height: 100vh; }
-#main-content { flex-grow: 1; padding: 20px 20px 90px 20px; overflow-y: auto; }
-
-.page { animation: fadeIn 0.5s ease-in-out; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-
-/* ৬. সাধারণ কম্পোনেন্ট (কার্ড, বাটন) */
-.card {
-    background: var(--card-color);
-    border-radius: var(--card-radius);
-    padding: 25px;
-    box-shadow: var(--card-shadow);
-    margin-bottom: 20px;
-}
-h2 {
-    font-size: 24px;
-    font-weight: 700;
-    margin-bottom: 25px;
-    text-align: center;
-}
-.btn {
-    width: 100%;
-    padding: 16px;
-    background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
-    color: white;
-    border: none;
-    border-radius: 14px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
-    box-shadow: 0 4px 15px rgba(54, 113, 233, 0.4);
-}
-.btn:active {
-    transform: scale(0.97);
-    box-shadow: 0 2px 10px rgba(54, 113, 233, 0.3);
-}
-
-/* ৭. নির্দিষ্ট পেইজের ডিজাইন */
-.header { text-align: center; margin-bottom: 25px; }
-.app-logo { width: 80px; height: 80px; border-radius: var(--card-radius); margin-bottom: 15px; box-shadow: var(--card-shadow); }
-#welcome-message { font-weight: 600; font-size: 20px; }
-.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-.stat-card .icon { font-size: 28px; color: var(--primary-color); margin-bottom: 10px; }
-.stat-card p { font-size: 14px; margin-bottom: 8px; color: var(--text-color-light); font-weight: 500; }
-.stat-card h3 { font-size: 22px; font-weight: 700; }
-.progress-item label { font-size: 14px; font-weight: 600; display: block; margin-bottom: 10px; }
-.progress-bar-container { background-color: #EAEAEA; border-radius: 10px; height: 12px; }
-.progress-bar { background: linear-gradient(90deg, var(--secondary-color), var(--primary-color)); height: 100%; border-radius: 10px; }
-
-.task-item { display: flex; align-items: center; padding: 20px; border-bottom: 1px solid var(--border-color); transition: background-color 0.2s; }
-.task-item:first-child { border-top-left-radius: var(--card-radius); border-top-right-radius: var(--card-radius); }
-.task-item:last-child { border-bottom: none; border-bottom-left-radius: var(--card-radius); border-bottom-right-radius: var(--card-radius); }
-.task-item:hover { background-color: #f8f9fa; }
-.task-item .icon { font-size: 22px; color: var(--primary-color); margin-right: 20px; width: 35px; height: 35px; line-height: 35px; text-align: center; background: #EBF2FF; border-radius: 10px; }
-.task-details h4 { margin: 0 0 5px 0; font-size: 16px; font-weight: 600; }
-.task-details p { font-size: 13px; margin: 0; color: var(--text-color-light); }
-.task-btn { background: var(--primary-color); color: white; border: none; padding: 8px 16px; border-radius: 10px; cursor: pointer; font-weight: 600; }
-
-.notice { background: #FFFBEB; color: #8A6D3B; padding: 15px; border-radius: 12px; text-align: center; margin-bottom: 20px; font-weight: 500; }
-.notice.error { background: #FFF5F5; color: var(--danger-color); }
-.input-group { margin-bottom: 20px; }
-input, select { width: 100%; padding: 14px; border: 1px solid var(--border-color); border-radius: 12px; font-size: 16px; box-sizing: border-box; transition: border-color 0.2s, box-shadow 0.2s; }
-input:focus, select:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(54, 113, 233, 0.15); }
-#referral-link { text-align: center; background: #F7FAFC; font-weight: 600; }
-
-/* ৮. নেভিগেশন বার */
-.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-color); display: flex; justify-content: space-around; padding: 12px 0; box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05); border-top-left-radius: 24px; border-top-right-radius: 24px; }
-.nav-btn { background: none; border: none; color: var(--hint-color); display: flex; flex-direction: column; align-items: center; font-size: 12px; font-weight: 600; cursor: pointer; transition: color 0.2s, transform 0.2s; }
-.nav-btn i { font-size: 22px; margin-bottom: 5px; }
-.nav-btn.active { color: var(--primary-color); transform: translateY(-5px); }
+body { font-family: Arial, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+#auth-container, #app-container { background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); width: 350px; text-align: center; max-height: 90vh; overflow-y: auto; }
+h1, h2, h3 { color: #333; }
+input, select { width: 90%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px; }
+button { width: 95%; padding: 10px; border: none; border-radius: 4px; background-color: #007bff; color: white; font-size: 16px; cursor: pointer; margin-top: 5px; }
+button:hover { background-color: #0056b3; }
+#logout-btn { background-color: #dc3545; }
+#logout-btn:hover { background-color: #c82333; }
+#admin-panel { border-top: 2px solid #eee; margin-top: 20px; padding-top: 20px; }
+#message { margin-top: 15px; font-weight: bold; }
+#tasks-section, #withdraw-section, #bonus-section { margin-top: 20px; }
+.task-card { background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 15px; text-align: left; }
+.task-card h3 { margin-top: 0; }
+.complete-task-btn { background-color: #28a745; width: auto; padding: 8px 15px; font-size: 14px; }
+.complete-task-btn:hover { background-color: #218838; }
+.complete-task-btn:disabled { background-color: #6c757d; cursor: not-allowed; }
+#withdraw-form { display: flex; flex-direction: column; gap: 10px; }
+#withdraw-form button { margin-top: 5px; }
+.request-card { background-color: #fff3cd; border: 1px solid #ffeeba; border-radius: 8px; padding: 15px; margin-bottom: 10px; text-align: left; }
+.request-card p { margin: 5px 0; }
+.request-card button { width: auto; padding: 5px 10px; font-size: 12px; margin-right: 10px; }
+.approve-btn { background-color: #28a745; }
+.reject-btn { background-color: #dc3545; }
